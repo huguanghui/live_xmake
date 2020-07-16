@@ -1,0 +1,5 @@
+target("cacheBuf")
+    set_kind("binary")
+    set_targetdir("../output")
+    add_files("*.cpp")
+    add_syslinks("pthread", "dl")

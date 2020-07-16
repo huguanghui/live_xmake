@@ -318,6 +318,7 @@ void RTSPServer::RTSPClientConnection
   do {
     char urlTotalSuffix[2*RTSP_PARAM_STRING_MAX];
         // enough space for urlPreSuffix/urlSuffix'\0'
+    printf("Describe pre: %s suf: %s\n", urlPreSuffix, urlSuffix);
     urlTotalSuffix[0] = '\0';
     if (urlPreSuffix[0] != '\0') {
       strcat(urlTotalSuffix, urlPreSuffix);
@@ -332,6 +333,7 @@ void RTSPServer::RTSPClientConnection
     
     // Begin by looking up the "ServerMediaSession" object for the specified "urlTotalSuffix":
     session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
+    printf("Describe session[%p]\n", session);
     if (session == NULL) {
       handleCmd_notFound();
       break;
@@ -636,10 +638,10 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
       // But first, we remove any whitespace that may be in the input data:
       unsigned toIndex = 0;
       for (int fromIndex = 0; fromIndex < newBytesRead; ++fromIndex) {
-	char c = ptr[fromIndex];
-	if (!(c == ' ' || c == '\t' || c == '\r' || c == '\n')) { // not 'whitespace': space,tab,CR,NL
-	  ptr[toIndex++] = c;
-	}
+	    char c = ptr[fromIndex];
+	    if (!(c == ' ' || c == '\t' || c == '\r' || c == '\n')) { // not 'whitespace': space,tab,CR,NL
+	        ptr[toIndex++] = c;
+	    }
       }
       newBytesRead = toIndex;
       
@@ -647,13 +649,13 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
       unsigned newBase64RemainderCount = numBytesToDecode%4;
       numBytesToDecode -= newBase64RemainderCount;
       if (numBytesToDecode > 0) {
-	ptr[newBytesRead] = '\0';
-	unsigned decodedSize;
-	unsigned char* decodedBytes = base64Decode((char const*)(ptr-fBase64RemainderCount), numBytesToDecode, decodedSize);
+	    ptr[newBytesRead] = '\0';
+	    unsigned decodedSize;
+	    unsigned char* decodedBytes = base64Decode((char const*)(ptr-fBase64RemainderCount), numBytesToDecode, decodedSize);
 #ifdef DEBUG
-	fprintf(stderr, "Base64-decoded %d input bytes into %d new bytes:", numBytesToDecode, decodedSize);
-	for (unsigned k = 0; k < decodedSize; ++k) fprintf(stderr, "%c", decodedBytes[k]);
-	fprintf(stderr, "\n");
+	    fprintf(stderr, "Base64-decoded %d input bytes into %d new bytes:", numBytesToDecode, decodedSize);
+	    for (unsigned k = 0; k < decodedSize; ++k) fprintf(stderr, "%c", decodedBytes[k]);
+	    fprintf(stderr, "\n");
 #endif
 	
 	// Copy the new decoded bytes in place of the old ones (we can do this because there are fewer decoded bytes than original):
